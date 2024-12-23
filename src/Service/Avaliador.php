@@ -26,6 +26,17 @@ class Avaliador
         $this->menorValor = $menorLance->getValor();
     }
 
+    public function getMaioresValores(Leilao $leilao):array
+    {
+        $lances = $leilao->getLances();
+
+        usort($lances, function($a, $b) {
+            return $b->getValor() <=> $a->getValor();
+        });
+
+        return array_slice($lances, 0, 4);
+    }
+
     public function getMaiorValor(): float
     {
         return $this->maiorValor;
