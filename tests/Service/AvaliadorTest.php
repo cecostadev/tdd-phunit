@@ -9,101 +9,124 @@ use Alura\Leilao\Service\Avaliador;
 use PHPUnit\Framework\TestCase;
 
 class AvaliadorTest extends TestCase
-{
+{   
 
-    public function test_maior_crescente()
+    private Avaliador $leiloeiro;
+
+    public function setUp():void
     {
-        $leilao = new Leilao('Computador de Bordo Aeronave');
-        $valorEsperado = 45000;
-
-        $usuario1 = new Usuario('Carlos');
-        $usuario2 = new Usuario('Henrique');
-
-        $leilao->recebeLance(new Lance($usuario1, '20000'));
-        $leilao->recebeLance(new Lance($usuario2, '45000'));
-
-        $leiloeiro = new Avaliador();
-        $leiloeiro->avalia($leilao);
-
-        self::assertEquals($leiloeiro->getMaiorValor(), 45000);
+        $this->leiloeiro = new Avaliador();
     }
 
-    public function test_maior_decrescente()
-    {
-        $leilao = new Leilao('Computador de Bordo Aeronave');
-        $valorEsperado = 45000;
+    /**
+    * @dataProvider criaLeiLaoCrescente
+    */
+    public function test_maior_crescente(Leilao $leilao)
+    {   
+        
+        $this->leiloeiro->avalia($leilao);
 
-        $usuario1 = new Usuario('Carlos');
-        $usuario2 = new Usuario('Henrique');
-
-        $leilao->recebeLance(new Lance($usuario2, '45000'));
-        $leilao->recebeLance(new Lance($usuario1, '20000'));
-
-        $leiloeiro = new Avaliador();
-        $leiloeiro->avalia($leilao);
-
-        self::assertEquals($leiloeiro->getMaiorValor(), 45000);
+        self::assertEquals($this->leiloeiro->getMaiorValor(), 45000);
     }
 
-    public function test_menor_crescente()
+    /**
+    * @dataProvider criaLeiLaoDecrescente
+    */
+    public function test_maior_decrescente(Leilao $leilao)
     {
-        $leilao = new Leilao('Computador de Bordo Aeronave');
-        $valorEsperado = 45000;
+        
+        $this->leiloeiro->avalia($leilao);
 
-        $usuario1 = new Usuario('Carlos');
-        $usuario2 = new Usuario('Henrique');
-
-        $leilao->recebeLance(new Lance($usuario1, '20000'));
-        $leilao->recebeLance(new Lance($usuario2, '45000'));
-
-        $leiloeiro = new Avaliador();
-        $leiloeiro->avalia($leilao);
-
-        self::assertEquals($leiloeiro->getMenorValor(), 20000);
+        self::assertEquals($this->leiloeiro->getMaiorValor(), 45000);
     }
 
-    public function test_maiores_valores()
+    /**
+    * @dataProvider criaLeiLaoCrescente
+    */
+    public function test_menor_crescente(Leilao $leilao)
     {
-        $leilao = new Leilao('Computador de Bordo Aeronave');
-        $valorEsperado = 45000;
+        
+        $this->leiloeiro->avalia($leilao);
 
-        $usuario1 = new Usuario('Carlos');
-        $usuario2 = new Usuario('Henrique');
-        $usuario3 = new Usuario('João');
-        $usuario4 = new Usuario('Fabri');
+        self::assertEquals($this->leiloeiro->getMenorValor(), 20000);
+    }
 
-        $leilao->recebeLance(new Lance($usuario1, '20000'));
-        $leilao->recebeLance(new Lance($usuario2, '45000'));
-        $leilao->recebeLance(new Lance($usuario3, '36000'));
-        $leilao->recebeLance(new Lance($usuario4, '21000'));
-
-        $leiloeiro = new Avaliador();
-        $maioresLances = $leiloeiro->getMaioresValores($leilao);
+    /**
+    * @dataProvider criaLeiLaoCrescente
+    * @dataProvider criaLeiLaoDecrescente
+    */
+    public function test_maiores_valores(Leilao $leilao)
+    {
+        
+        $maioresLances = $this->leiloeiro->getMaioresValores($leilao);
 
         $maiorValor = $maioresLances[0]->getValor();
 
-        self::assertCount(4, $maioresLances);
+        self::assertCount(3, $maioresLances);
         self::assertEquals(45000, $maiorValor);
-        self::assertEquals(21000, $maioresLances[2]->getValor());
+        self::assertEquals(20000, $maioresLances[2]->getValor());
     }
-
-    public function test_dois_lances()
+    
+    /**
+    * @dataProvider CriaLeilaoDoisLances
+    */
+    public function test_dois_lances(Leilao $leilao)
     {
-        $leilao = new Leilao('Computador de Bordo Aeronave');
-        $valorEsperado = 45000;
 
-        $usuario1 = new Usuario('Carlos');
-        $usuario2 = new Usuario('Henrique');
-
-        $leilao->recebeLance(new Lance($usuario1, '20000'));
-        $leilao->recebeLance(new Lance($usuario2, '45000'));
-
-        $leiloeiro = new Avaliador();
-        $maioresLances = $leiloeiro->getMaioresValores($leilao);
+        $maioresLances = $this->leiloeiro->getMaioresValores($leilao);
 
         $maiorValor = $maioresLances[0]->getValor();
 
         self::assertCount(2, $maioresLances);
         self::assertEquals(45000, $maiorValor);
+    }
+
+    public static function criaLeiLaoCrescente(): array
+    {
+        $leilao = new Leilao('Computador de Bordo Aeronave');
+
+        $usuario1 = new Usuario('Carlos');
+        $usuario2 = new Usuario('Henrique');
+        $usuario3 = new Usuario('João');
+
+        $leilao->recebeLance(new Lance($usuario1, '20000'));
+        $leilao->recebeLance(new Lance($usuario3, '36000'));
+        $leilao->recebeLance(new Lance($usuario2, '45000'));
+
+        return [
+            'crescente' => [$leilao],
+        ];
+    }
+
+    public static function  criaLeiLaoDecrescente()
+    {
+        $leilao = new Leilao('Computador de Bordo Aeronave');
+
+        $usuario1 = new Usuario('Carlos');
+        $usuario2 = new Usuario('Henrique');
+        $usuario3 = new Usuario('João');
+
+        $leilao->recebeLance(new Lance($usuario2, '45000'));
+        $leilao->recebeLance(new Lance($usuario3, '36000'));
+        $leilao->recebeLance(new Lance($usuario1, '20000'));
+
+        return [
+            'decrescente' => [$leilao],
+        ];
+    }
+
+    public static function CriaLeilaoDoisLances()
+    {
+        $leilao = new Leilao('Computador de Bordo Aeronave');
+
+        $usuario1 = new Usuario('Carlos');
+        $usuario2 = new Usuario('Henrique');
+
+        $leilao->recebeLance(new Lance($usuario1, '45000'));
+        $leilao->recebeLance(new Lance($usuario2, '36000'));
+
+        return [
+            'aleatorio' => [$leilao],
+        ];
     }
 }
