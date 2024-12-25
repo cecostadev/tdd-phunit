@@ -2,11 +2,12 @@
 
 namespace Alura\Leilao\Model;
 
+use Alura\Leilao\Model\Usuario;
+
 class Leilao
-{
-    /** @var Lance[] */
+{   
+    const NUM_LANCES = 3;
     private $lances;
-    /** @var string */
     private $descricao;
 
     public function __construct(string $descricao)
@@ -16,7 +17,15 @@ class Leilao
     }
 
     public function recebeLance(Lance $lance)
-    {
+    {   
+        $ultimoLance = end($this->lances);
+
+        if($ultimoLance && !$this->permiteEfetuarLance($ultimoLance->getUsuario(), $lance->getUsuario())) {
+            return;
+        }
+        
+        $lance->getUsuario()->aumentaNumeroLances();
+
         $this->lances[] = $lance;
     }
 
@@ -26,5 +35,17 @@ class Leilao
     public function getLances(): array
     {
         return $this->lances;
+    }
+
+    private function permiteEfetuarLance(
+        Usuario $usuarioLanceAnterior, 
+        Usuario $usuarioLanceAtual
+    ): bool
+    {
+        if($usuarioLanceAnterior == $usuarioLanceAtual || $usuarioLanceAtual->getNumeroLances() >= self::NUM_LANCES) {
+            return false;
+        }
+
+        return true;
     }
 }
