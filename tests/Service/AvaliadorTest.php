@@ -18,6 +18,15 @@ class AvaliadorTest extends TestCase
         $this->leiloeiro = new Avaliador();
     }
 
+    public function test_leilao_vazio()
+    {
+        $this->expectException(\DomainException::class);
+        $this->expectExceptionMessage('Não é possível avaliar leilão vazio');
+    
+        $leilao = new Leilao('Apartamento Duplex - RJ');
+        $this->leiloeiro->avalia($leilao);
+    }
+
     /**
     * @dataProvider criaLeiLaoCrescente
     */
@@ -68,7 +77,7 @@ class AvaliadorTest extends TestCase
     }
     
     /**
-    * @dataProvider CriaLeilaoDoisLances
+    * @dataProvider criaLeilaoDoisLances
     */
     public function test_dois_lances(Leilao $leilao)
     {
@@ -115,7 +124,7 @@ class AvaliadorTest extends TestCase
         ];
     }
 
-    public static function CriaLeilaoDoisLances()
+    public static function criaLeilaoDoisLances()
     {
         $leilao = new Leilao('Computador de Bordo Aeronave');
 
