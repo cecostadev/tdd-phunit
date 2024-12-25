@@ -14,6 +14,10 @@ class Avaliador
     {
         $lances = $leilao->getLances();
 
+        if(empty($lances)) {
+            throw new \DomainException('Não é possível avaliar leilão vazio');
+        }
+
         $maiorLance = array_reduce($lances, function($primeiro, $lance) { 
             return ($primeiro === null || $lance->getValor() > $primeiro->getValor()) ? $lance : $primeiro; 
         }, null);
